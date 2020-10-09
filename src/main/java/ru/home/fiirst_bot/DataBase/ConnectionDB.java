@@ -9,9 +9,9 @@ import java.sql.*;
 import java.util.ArrayList;
 
 public class ConnectionDB implements Dao{
-  private String user = "postgres";
-  private String password = "1234";
-  private String url = "jdbc:postgresql://localhost:5432/telegrambotbd";
+  private String user = "osbhcodapvhigr";
+  private String password = "0c329a33fdcd10e0e4a01dc0ace814caedc7f62b55682b528ac4a239c3f47a77";
+  private String url = "postgres://osbhcodapvhigr:0c329a33fdcd10e0e4a01dc0ace814caedc7f62b55682b528ac4a239c3f47a77@ec2-34-253-148-186.eu-west-1.compute.amazonaws.com:5432/dem1khtuirargt";
 
 
 
