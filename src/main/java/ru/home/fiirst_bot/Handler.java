@@ -6,10 +6,13 @@ import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import ru.home.fiirst_bot.Admin.GetAdminStrings;
 import ru.home.fiirst_bot.DataBase.ConnectionDB;
 import ru.home.fiirst_bot.Keyboards.Keyboards;
+import sun.font.DelegatingShape;
 
 
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -29,26 +32,22 @@ public class Handler {
         if (update.getMessage() != null && update.getMessage().hasText()) {
             Message message = update.getMessage();
             long chatId = message.getChatId();
+            boolean isAdm = myFirstTelegramBot.getChatAdminId() == message.getChatId();
             String[] text = message.getText().split("\\.", 5);
 
 
-            if (text.length == 1) {
-                switch (message.getText()) {
-                    case "Напитки":
-                        doSendProducts(message.getText(), chatId);
-                        break;
-                    case "Чипсы":
-                        doSendProducts(message.getText(), chatId);
-                        break;
-                    case "Шоколад":
-                        doSendProducts(message.getText(), chatId);
-                        break;
-                    default:
-                        doSendText("Выберите категорию", chatId);
+            if (text.length == 1 && !message.getText().equals("/admin")) {
+                try {
+                    if(new ConnectionDB().equalsWithCategories(message.getText())) doSendProducts(message.getText(), chatId);
+                            else {
+                                    doSendText("Выберите категорию", chatId);
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
             }
 
-           else if (myFirstTelegramBot.getChatAdminId() == message.getChatId()){
+           else if (isAdm){
                     switch (text[0]) {
                         case "добавить":
                             connection = new ConnectionDB();
@@ -108,6 +107,11 @@ public class Handler {
                                 throwables.printStackTrace();
                             }
                             break;
+                        case "/admin":
+                            doSendText(GetAdminStrings.getInfoString(), chatId);
+                            break;
+                        default:
+                            doSendText("Выберите категорию", chatId);
                     }
                 }
             }
@@ -118,6 +122,9 @@ public class Handler {
             myFirstTelegramBot.execute(new SendMessage().setChatId(chatId).setReplyMarkup(Keyboards.getMenuKeyboard()).
                     setText(text));
         } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+        catch (SQLException e){
             e.printStackTrace();
         }
     }
