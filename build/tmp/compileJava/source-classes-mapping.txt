@@ -8,10 +8,10 @@ ru/home/fiirst_bot/Keyboards/Keyboards.java
  ru.home.fiirst_bot.Keyboards.Keyboards
 ru/home/fiirst_bot/DataBase/Dao.java
  ru.home.fiirst_bot.DataBase.Dao
+ru/home/fiirst_bot/MyFirstTelegramBot.java
+ ru.home.fiirst_bot.MyFirstTelegramBot
+ru/home/fiirst_bot/Handler.java
+ ru.home.fiirst_bot.Handler
 ru/home/fiirst_bot/DataBase/ConnectionDB.java
  ru.home.fiirst_bot.DataBase.ConnectionDB
  ru.home.fiirst_bot.DataBase.ConnectionDB$SQL
-ru/home/fiirst_bot/Handler.java
- ru.home.fiirst_bot.Handler
-ru/home/fiirst_bot/MyFirstTelegramBot.java
- ru.home.fiirst_bot.MyFirstTelegramBot
