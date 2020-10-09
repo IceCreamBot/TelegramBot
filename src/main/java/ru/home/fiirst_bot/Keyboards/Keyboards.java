@@ -1,6 +1,5 @@
 package ru.home.fiirst_bot.Keyboards;
 
-import org.springframework.context.annotation.Bean;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;

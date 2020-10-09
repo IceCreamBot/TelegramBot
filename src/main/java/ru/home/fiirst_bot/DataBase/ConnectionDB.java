@@ -1,25 +1,19 @@
 package ru.home.fiirst_bot.DataBase;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Update;
-
 import java.sql.*;
 import java.util.ArrayList;
 
 public class ConnectionDB implements Dao{
   private String user = "osbhcodapvhigr";
   private String password = "0c329a33fdcd10e0e4a01dc0ace814caedc7f62b55682b528ac4a239c3f47a77";
-  private String url = "jdbc:postgresql://osbhcodapvhigr:0c329a33fdcd10e0e4a01dc0ace814caedc7f62b55682b528ac4a239c3f47a77@ec2-34-253-148-186.eu-west-1.compute.amazonaws.com:5432/dem1khtuirargt";
-
+  private String url = "jdbc:postgresql://ec2-34-253-148-186.eu-west-1.compute.amazonaws.com:5432/dem1khtuirargt";
 
 
     @Override
     public String create(String[] s) throws SQLException {
         String result = "Неправильный запрос";
         if(s.length == 5) {
-            try (Connection connection = DriverManager.getConnection(url);
+            try (Connection connection = DriverManager.getConnection(url, user, password);
                  PreparedStatement statement = connection.prepareStatement(SQL.CREATEwithCategory.QUERY)) {
                 if(!equalsWithCategories(s[4], connection))return "Неправильная категория";
                 statement.setString(1, s[1]);
@@ -35,7 +29,7 @@ public class ConnectionDB implements Dao{
             }
         }
         else if(s.length == 4){
-            try (Connection connection = DriverManager.getConnection(url);
+            try (Connection connection = DriverManager.getConnection(url, user, password);
                  PreparedStatement statement = connection.prepareStatement(SQL.CREATEwithCategory.QUERY)) {
                 statement.setString(1, s[1]);
                 statement.setInt(2, Integer.parseInt(s[2]));
@@ -48,7 +42,7 @@ public class ConnectionDB implements Dao{
             }
         }
         else if(s[0].equals("добавить категорию")){
-            try (Connection connection = DriverManager.getConnection(url);
+            try (Connection connection = DriverManager.getConnection(url, user, password);
                  PreparedStatement statement = connection.prepareStatement(SQL.CREATECategory.QUERY)) {
                 if(equalsWithCategories(s[1], connection))return "Такая категория уже есть";
                 statement.setString(1, s[1]);
@@ -65,7 +59,7 @@ public class ConnectionDB implements Dao{
     @Override
     public ArrayList<Object[]> read(String s) throws SQLException{
             ArrayList<Object[]> arrayList = new ArrayList<>();
-        try (Connection connection = DriverManager.getConnection(url);
+        try (Connection connection = DriverManager.getConnection(url, user, password);
              PreparedStatement statement = connection.prepareStatement(SQL.READ.QUERY)) {
             statement.setString(1, s);
             ResultSet resultSet = statement.executeQuery();
@@ -83,7 +77,7 @@ public class ConnectionDB implements Dao{
     public String update(String[] s) throws SQLException{
         String result = "Неправильный запрос";
         if(s[0].equals("изменить цену")) {
-            try (Connection connection = DriverManager.getConnection(url);
+            try (Connection connection = DriverManager.getConnection(url, user, password);
                  PreparedStatement statement = connection.prepareStatement(SQL.UPDATEPRICE.QUERY)) {
                 if(!equalsWithNames(s[1], connection))return "Такого названия нету";
                 statement.setInt(1, Integer.parseInt(s[2]));
@@ -94,7 +88,7 @@ public class ConnectionDB implements Dao{
             }
         }
         else if(s[0].equals("изменить колличество")){
-            try (Connection connection = DriverManager.getConnection(url);
+            try (Connection connection = DriverManager.getConnection(url, user, password);
                  PreparedStatement statement = connection.prepareStatement(SQL.UPDATEQUANTITY.QUERY)) {
                 if(!equalsWithNames(s[1], connection))return "Такого названия нету";
                 statement.setInt(1, Integer.parseInt(s[2]));
@@ -105,7 +99,7 @@ public class ConnectionDB implements Dao{
             }
         }
         else if(s[0].equals("изменить фото")){
-            try (Connection connection = DriverManager.getConnection(url);
+            try (Connection connection = DriverManager.getConnection(url, user, password);
                  PreparedStatement statement = connection.prepareStatement(SQL.UPDATEURL.QUERY)) {
                 if(!equalsWithNames(s[1], connection))return "Такого названия нету";
                 statement.setString(1, s[2]);
