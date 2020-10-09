@@ -124,6 +124,7 @@ public class ConnectionDB implements Dao {
                  PreparedStatement statement = connection.prepareStatement(SQL.DELETECategories.QUERY)) {
                 if (!equalsWithCategories(s[1], connection)) return "Такого названия нету";
                 statement.setString(1, s[1]);
+                statement.setString(2, s[1]);
                 statement.execute();
                 result = "Успешно";
             }
@@ -141,7 +142,8 @@ public class ConnectionDB implements Dao {
         UPDATEURL("Update PRODUCTS set url = ? where name = ?;"),
         UPDATEQUANTITY("Update PRODUCTS set quantity = ? where name = ?;"),
         DELETE("delete from products where name = ?;"),
-        DELETECategories("delete from categories where name = ?;");
+        DELETECategories("delete from categories where name = ?;" +
+                "delete FROM PRODUCTS WHERE category = ?;");
 
         String QUERY;
 
