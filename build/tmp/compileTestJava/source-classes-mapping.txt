@@ -1,0 +1,2 @@
+ru/home/fiirst_bot/FirstBotApplicationTests.java
+ ru.home.fiirst_bot.FirstBotApplicationTests
