@@ -5,14 +5,12 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import ru.home.fiirst_bot.DataBase.ConnectionDB;
-
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Keyboards {
 
-    public static ReplyKeyboard getMenuKeyboard() throws SQLException {
+    public static ReplyKeyboard getMenuKeyboard(){
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
 
         replyKeyboardMarkup.setResizeKeyboard(true);
@@ -35,10 +33,10 @@ public class Keyboards {
             keyboardRows.add(keyboardRow);
         }
 
-
         replyKeyboardMarkup.setKeyboard(keyboardRows);
         return replyKeyboardMarkup;
     }
+
     public static ReplyKeyboard getContextKeyboard(){
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
 

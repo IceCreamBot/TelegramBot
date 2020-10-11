@@ -3,7 +3,6 @@ package ru.home.fiirst_bot.appconfig;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.context.annotation.Bean;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 import ru.home.fiirst_bot.MyFirstTelegramBot;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;

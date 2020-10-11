@@ -1,52 +1,54 @@
 package ru.home.fiirst_bot.DataBase;
 
 import lombok.Getter;
-
+import org.springframework.beans.factory.annotation.Value;
 import java.sql.*;
 import java.util.ArrayList;
+
 @Getter
 public class ConnectionDB implements Dao {
+    @Value("telegrambot.urlPhotoDefault")
+    private String urlPhotoDefault;
     private String user = "osbhcodapvhigr";
     private String password = "0c329a33fdcd10e0e4a01dc0ace814caedc7f62b55682b528ac4a239c3f47a77";
     private String url = "jdbc:postgresql://ec2-34-253-148-186.eu-west-1.compute.amazonaws.com:5432/dem1khtuirargt";
 
+    @Override
+    public String create(String[] s) {
+        String result = "Неправильный запрос";
+        PreparedStatement statement = getStatement(SQL.CREATEwithCategory.QUERY);
+
+            try {
+                if (!equalsWithCategories(s[4])) return "Неправильная категория";
+                statement.setString(1, s[1]);
+                statement.setInt(2, Integer.parseInt(s[2]));
+                statement.setInt(3, Integer.parseInt(s[3]));
+
+                if(s.length == 5)  statement.setString(4, s[4]);
+                else if(s.length == 4) statement.setString(4, "Другое");
+
+                statement.setString(5, urlPhotoDefault);
+                statement.execute();
+                result = "Успешно";
+            } catch (NumberFormatException | SQLException e) {
+                e.printStackTrace();
+            }
+
+        return result;
+    }
 
     @Override
-    public String create(String[] s) throws SQLException {
+    public String createCategory(String[] s){
         String result = "Неправильный запрос";
-        if (s.length == 5) {
-            try (Connection connection = DriverManager.getConnection(url, user, password);
-                 PreparedStatement statement = connection.prepareStatement(SQL.CREATEwithCategory.QUERY)) {
-                if (!equalsWithCategories(s[4], connection)) return "Неправильная категория";
-                statement.setString(1, s[1]);
-                statement.setInt(2, Integer.parseInt(s[2]));
-                statement.setInt(3, Integer.parseInt(s[3]));
-                statement.setString(4, s[4]);
-                statement.setString(5, "https://prof-lic.com/upload/medialibrary/5f3/5f30deb314f64899cd1c46a3a4f561c3.png");
-
-                statement.execute();
-                result = "Успешно";
-            } catch (NumberFormatException e) {
-            }
-        } else if (s.length == 4) {
-            try (Connection connection = DriverManager.getConnection(url, user, password);
-                 PreparedStatement statement = connection.prepareStatement(SQL.CREATEwithCategory.QUERY)) {
-                statement.setString(1, s[1]);
-                statement.setInt(2, Integer.parseInt(s[2]));
-                statement.setInt(3, Integer.parseInt(s[3]));
-                statement.setString(4, "Другое");
-                statement.execute();
-                result = "Успешно";
-            } catch (NumberFormatException e) {
-            }
-        } else if (s[0].equals("добавить категорию")) {
-            try (Connection connection = DriverManager.getConnection(url, user, password);
-                 PreparedStatement statement = connection.prepareStatement(SQL.CREATECategory.QUERY)) {
-                if (equalsWithCategories(s[1], connection)) return "Такая категория уже есть";
+        PreparedStatement statement = getStatement(SQL.CREATECategory.QUERY);
+        if (s[0].equals("добавить категорию")) {
+            try {
+                if (equalsWithCategories(s[1])) return "Такая категория уже есть";
                 statement.setString(1, s[1]);
                 statement.execute();
                 result = "Успешно";
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException | SQLException e) {
+                e.printStackTrace();
             }
         }
 
@@ -54,79 +56,83 @@ public class ConnectionDB implements Dao {
     }
 
     @Override
-    public ArrayList<Object[]> read(String s) throws SQLException {
+    public ArrayList<Object[]> read(String s){
         ArrayList<Object[]> arrayList = new ArrayList<>();
-        try (Connection connection = DriverManager.getConnection(url, user, password);
-             PreparedStatement statement = connection.prepareStatement(SQL.READ.QUERY)) {
+        PreparedStatement statement = getStatement(SQL.READ.QUERY);
+        try {
             statement.setString(1, s);
             ResultSet resultSet = statement.executeQuery();
+
             while (resultSet.next()) {
                 arrayList.add(new Object[]{resultSet.getString("name"),
                         resultSet.getInt("quantity"),
                         resultSet.getInt("price"),
                         resultSet.getString("url")});
             }
+            resultSet.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return arrayList;
     }
 
     @Override
-    public String update(String[] s) throws SQLException {
+    public String update(String[] s){
         String result = "Неправильный запрос";
-        if (s[0].equals("изменить цену")) {
-            try (Connection connection = DriverManager.getConnection(url, user, password);
-                 PreparedStatement statement = connection.prepareStatement(SQL.UPDATEPRICE.QUERY)) {
-                if (!equalsWithNames(s[1], connection)) return "Такого названия нету";
-                statement.setInt(1, Integer.parseInt(s[2]));
+        PreparedStatement statement = null;
+
+        if(s[0].equals("изменить цену"))statement = getStatement(SQL.UPDATEPRICE.QUERY);
+        else if(s[0].equals("изменить колличество")) statement = getStatement(SQL.UPDATEQUANTITY.QUERY);
+        else if(s[0].equals("изменить фото"))statement = getStatement(SQL.UPDATEURL.QUERY);
+
+        try  {
+                if (!equalsWithNames(s[1])) return "Такого названия нету";
+
+                if(s[0].equals("изменить фото")) statement.setInt(1, Integer.parseInt(s[2]));
+                else statement.setString(1, s[2]);
+
                 statement.setString(2, s[1]);
                 statement.execute();
                 result = "Успешно";
-            } catch (NumberFormatException e) {
+            } catch (NumberFormatException | SQLException e) {
+            e.printStackTrace();
             }
-        } else if (s[0].equals("изменить колличество")) {
-            try (Connection connection = DriverManager.getConnection(url, user, password);
-                 PreparedStatement statement = connection.prepareStatement(SQL.UPDATEQUANTITY.QUERY)) {
-                if (!equalsWithNames(s[1], connection)) return "Такого названия нету";
-                statement.setInt(1, Integer.parseInt(s[2]));
-                statement.setString(2, s[1]);
-                statement.execute();
-                result = "Успешно";
-            } catch (NumberFormatException e) {
-            }
-        } else if (s[0].equals("изменить фото")) {
-            try (Connection connection = DriverManager.getConnection(url, user, password);
-                 PreparedStatement statement = connection.prepareStatement(SQL.UPDATEURL.QUERY)) {
-                if (!equalsWithNames(s[1], connection)) return "Такого названия нету";
-                statement.setString(1, s[2]);
-                statement.setString(2, s[1]);
-                statement.execute();
-                result = "Успешно";
-            }
-        }
+
 
         return result;
     }
 
     @Override
-    public String delete(String[] s) throws SQLException {
+    public String delete(String... s){
         String result = "Неправильный запрос";
+
         if (s[0].equals("удалить")) {
-            try (Connection connection = DriverManager.getConnection(url, user, password);
-                 PreparedStatement statement = connection.prepareStatement(SQL.DELETE.QUERY)) {
-                if (!equalsWithNames(s[1], connection)) return "Такого названия нету";
+            PreparedStatement statement = getStatement(SQL.DELETE.QUERY);
+            try {
+                if (!equalsWithNames(s[1])) return "Такого названия нету";
                 statement.setString(1, s[1]);
                 statement.execute();
                 result = "Успешно";
-                return result;
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-        } else if (s[0].equals("удалить категорию")) {
-            try (Connection connection = DriverManager.getConnection(url, user, password);
-                 PreparedStatement statement = connection.prepareStatement(SQL.DELETECategories.QUERY)) {
-                if (!equalsWithCategories(s[1], connection)) return "Такого названия нету";
+        }
+        return result;
+    }
+
+    @Override
+    public String deleteCategory(String[] s) {
+        String result = "Неправильный запрос";
+        if(s[0].equals("удалить категорию")) {
+            PreparedStatement statement = getStatement(SQL.DELETECategories.QUERY);
+            try {
                 statement.setString(1, s[1]);
-                statement.setString(2, s[1]);
                 statement.execute();
+                delete("удалить", s[1]);
                 result = "Успешно";
+            }
+            catch (SQLException e){
+                e.printStackTrace();
             }
         }
         return result;
@@ -142,8 +148,7 @@ public class ConnectionDB implements Dao {
         UPDATEURL("Update PRODUCTS set url = ? where name = ?;"),
         UPDATEQUANTITY("Update PRODUCTS set quantity = ? where name = ?;"),
         DELETE("delete from products where name = ?;"),
-        DELETECategories("delete from categories where name = ?;" +
-                "delete FROM PRODUCTS WHERE category = ?;");
+        DELETECategories("Delete FROM PRODUCTS WHERE category = ?;");
 
         String QUERY;
 
@@ -152,52 +157,53 @@ public class ConnectionDB implements Dao {
         }
     }
 
-    public boolean equalsWithCategories(String s, Connection connection) throws SQLException {
-        boolean result = false;
-        PreparedStatement statement = connection.prepareStatement("SELECT * from categories");
-        ResultSet rs = statement.executeQuery();
-        statement.close();
-        while (rs.next()) {
-            if (result = rs.getString("name").equals(s)) break;
-        }
-        return result;
+    public boolean equalsWithCategories(String s) {
+        return equalsWith(s, getStatement("SELECT name from categories;"));
     }
-    public boolean equalsWithCategories(String s) throws SQLException {
-        boolean result = false;
-        try(Connection connection = DriverManager.getConnection(url, user, password)) {
-            PreparedStatement statement = connection.prepareStatement("SELECT * from categories");
-            ResultSet rs = statement.executeQuery();
-            statement.close();
 
-            while (rs.next()) {
-                if (result = rs.getString("name").equals(s)) break;
+
+    public boolean equalsWithNames(String s){
+        return equalsWith(s, getStatement("SELECT name from products;"));
+    }
+
+    private boolean equalsWith(String s, PreparedStatement statement){
+        boolean result = false;
+        try{
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                if (result = resultSet.getString("name").equals(s)) break;
             }
+            resultSet.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        return result;
+        return  result;
     }
 
-
-    public boolean equalsWithNames(String s, Connection connection) throws SQLException {
-        boolean result = false;
-        PreparedStatement statement = connection.prepareStatement("SELECT name from products");
-        ResultSet rs = statement.executeQuery();
-        statement.close();
-        while (rs.next()) {
-            if (result = rs.getString("name").equals(s)) break;
-        }
-        return result;
-    }
-
-    public ArrayList<String> getAllCategories() throws SQLException {
+    public ArrayList<String> getAllCategories(){
         ArrayList<String> strings = new ArrayList<>();
-
-        try (Connection connection = DriverManager.getConnection(url, user, password);
-             PreparedStatement statement = connection.prepareStatement(SQL.READAllCategories.QUERY)) {
+        PreparedStatement statement = getStatement(SQL.READAllCategories.QUERY);
+        try {
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()){
                 strings.add(resultSet.getString("name"));
             }
+            resultSet.close();
+        }
+        catch (SQLException e){
+            e.printStackTrace();
         }
         return strings;
+    }
+
+    public PreparedStatement getStatement(String sqlQuery){
+        PreparedStatement statement = null;
+        try (Connection connection = DriverManager.getConnection(url, user, password);
+             PreparedStatement statement1 = connection.prepareStatement(sqlQuery)){
+            statement = statement1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return statement;
     }
 }

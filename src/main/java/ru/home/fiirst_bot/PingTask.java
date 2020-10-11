@@ -13,7 +13,7 @@ import java.net.URL;
 public class PingTask {
     private String url = "https://google.com";
 
-@Scheduled(fixedRateString = "1200000")
+@Scheduled(fixedRateString = "120000")
    public void pingMe(){
         try{
             URL url = new URL(getUrl());
