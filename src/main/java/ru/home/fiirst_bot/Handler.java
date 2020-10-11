@@ -2,8 +2,6 @@ package ru.home.fiirst_bot;
 
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -16,8 +14,7 @@ import java.util.ArrayList;
 
 @Setter
 public class Handler {
-    @Value("telegrambot.urlPhotoDefault")
-    String urlPhotoDedault;
+    String urlPhotoDedault = "https://prof-lic.com/upload/medialibrary/5f3/5f30deb314f64899cd1c46a3a4f561c3.png";
     private MyFirstTelegramBot myFirstTelegramBot;
     private Update update;
     private ConnectionDB connection = new ConnectionDB();
@@ -34,7 +31,6 @@ public class Handler {
 
     public void handled() {
         if (update.getMessage() != null && update.getMessage().hasText()) {
-
             if (!isAdm) {
                 if (connection.equalsWithCategories(message.getText()))
                     doSendProducts(message.getText());
@@ -42,7 +38,9 @@ public class Handler {
                     doSendText("Выберите категорию");
                 }
 
-            } else if (isAdm) {
+            }
+
+            if (isAdm) {
                 switch (text[0]) {
                     case "добавить":
                         doSendText(connection.create(text));
@@ -69,8 +67,6 @@ public class Handler {
                     case "/admin":
                         doSendText(GetAdminStrings.getInfoString());
                         break;
-                    default:
-                        doSendText("Выберите категорию");
                 }
             }
         }

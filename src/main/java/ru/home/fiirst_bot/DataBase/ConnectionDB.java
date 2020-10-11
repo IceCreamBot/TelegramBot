@@ -7,8 +7,7 @@ import java.util.ArrayList;
 
 @Getter
 public class ConnectionDB implements Dao {
-    @Value("telegrambot.urlPhotoDefault")
-    private String urlPhotoDefault;
+    private String urlPhotoDefault = "https://prof-lic.com/upload/medialibrary/5f3/5f30deb314f64899cd1c46a3a4f561c3.png";
     private String user = "osbhcodapvhigr";
     private String password = "0c329a33fdcd10e0e4a01dc0ace814caedc7f62b55682b528ac4a239c3f47a77";
     private String url = "jdbc:postgresql://ec2-34-253-148-186.eu-west-1.compute.amazonaws.com:5432/dem1khtuirargt";
