@@ -1,7 +1,6 @@
 package ru.home.fiirst_bot;
 
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Value;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -15,13 +14,13 @@ import java.util.ArrayList;
 @Setter
 public class Handler {
     String urlPhotoDedault = "https://prof-lic.com/upload/medialibrary/5f3/5f30deb314f64899cd1c46a3a4f561c3.png";
+    ConnectionDB connection;
     private MyFirstTelegramBot myFirstTelegramBot;
     private Update update;
-    private ConnectionDB connection = new ConnectionDB();
-    Message message = update.getMessage();
-    long chatId = message.getChatId();
-    boolean isAdm = myFirstTelegramBot.getChatAdminId() == chatId;
-    String[] text = message.getText().split("\\.", 5);
+    Message message;
+    long chatId;
+    boolean isAdm;
+    String[] text;
 
     public Handler(MyFirstTelegramBot myFirstTelegramBot, Update update) {
         this.myFirstTelegramBot = myFirstTelegramBot;
@@ -31,16 +30,17 @@ public class Handler {
 
     public void handled() {
         if (update.getMessage() != null && update.getMessage().hasText()) {
-            if (!isAdm) {
-                if (connection.equalsWithCategories(message.getText()))
-                    doSendProducts(message.getText());
-                else {
-                    doSendText("Выберите категорию");
+            connection = new ConnectionDB();
+            this.message = update.getMessage();
+            this.chatId = message.getChatId();
+            this.text =  message.getText().split("\\.", 5);
+            this.isAdm = myFirstTelegramBot.getChatAdminId() == chatId;
+
+            if(!isAdm){
+                defaultHandlerForBuyer();
                 }
 
-            }
-
-            if (isAdm) {
+            else {
                 switch (text[0]) {
                     case "добавить":
                         doSendText(connection.create(text));
@@ -67,6 +67,8 @@ public class Handler {
                     case "/admin":
                         doSendText(GetAdminStrings.getInfoString());
                         break;
+                    default:
+                        defaultHandlerForBuyer();
                 }
             }
         }
@@ -115,6 +117,14 @@ public class Handler {
         }
         catch (TelegramApiException e){
             e.printStackTrace();
+        }
+    }
+
+    public void defaultHandlerForBuyer(){
+        if (connection.equalsWithCategories(message.getText()))
+            doSendProducts(message.getText());
+        else {
+            doSendText("Выберите категорию");
         }
     }
 }

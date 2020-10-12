@@ -1,7 +1,6 @@
 package ru.home.fiirst_bot.DataBase;
 
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Value;
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -15,9 +14,8 @@ public class ConnectionDB implements Dao {
     @Override
     public String create(String[] s) {
         String result = "Неправильный запрос";
-        PreparedStatement statement = getStatement(SQL.CREATEwithCategory.QUERY);
-
-            try {
+        try (PreparedStatement statement = getStatement(SQL.CREATEwithCategory.QUERY);
+             Connection connection = statement.getConnection()){
                 if (!equalsWithCategories(s[4])) return "Неправильная категория";
                 statement.setString(1, s[1]);
                 statement.setInt(2, Integer.parseInt(s[2]));
@@ -39,9 +37,9 @@ public class ConnectionDB implements Dao {
     @Override
     public String createCategory(String[] s){
         String result = "Неправильный запрос";
-        PreparedStatement statement = getStatement(SQL.CREATECategory.QUERY);
         if (s[0].equals("добавить категорию")) {
-            try {
+            try (PreparedStatement statement = getStatement(SQL.CREATECategory.QUERY);
+                 Connection connection = statement.getConnection()){
                 if (equalsWithCategories(s[1])) return "Такая категория уже есть";
                 statement.setString(1, s[1]);
                 statement.execute();
@@ -57,8 +55,8 @@ public class ConnectionDB implements Dao {
     @Override
     public ArrayList<Object[]> read(String s){
         ArrayList<Object[]> arrayList = new ArrayList<>();
-        PreparedStatement statement = getStatement(SQL.READ.QUERY);
-        try {
+        try (PreparedStatement statement = getStatement(SQL.READ.QUERY);
+             Connection connection = statement.getConnection()){
             statement.setString(1, s);
             ResultSet resultSet = statement.executeQuery();
 
@@ -78,13 +76,14 @@ public class ConnectionDB implements Dao {
     @Override
     public String update(String[] s){
         String result = "Неправильный запрос";
-        PreparedStatement statement = null;
+        PreparedStatement statement1 = null;
 
-        if(s[0].equals("изменить цену"))statement = getStatement(SQL.UPDATEPRICE.QUERY);
-        else if(s[0].equals("изменить колличество")) statement = getStatement(SQL.UPDATEQUANTITY.QUERY);
-        else if(s[0].equals("изменить фото"))statement = getStatement(SQL.UPDATEURL.QUERY);
+        if(s[0].equals("изменить цену"))statement1 = getStatement(SQL.UPDATEPRICE.QUERY);
+        else if(s[0].equals("изменить колличество")) statement1 = getStatement(SQL.UPDATEQUANTITY.QUERY);
+        else if(s[0].equals("изменить фото"))statement1 = getStatement(SQL.UPDATEURL.QUERY);
 
-        try  {
+        try(PreparedStatement statement = statement1;
+            Connection connection = statement.getConnection()) {
                 if (!equalsWithNames(s[1])) return "Такого названия нету";
 
                 if(s[0].equals("изменить фото")) statement.setInt(1, Integer.parseInt(s[2]));
@@ -106,8 +105,8 @@ public class ConnectionDB implements Dao {
         String result = "Неправильный запрос";
 
         if (s[0].equals("удалить")) {
-            PreparedStatement statement = getStatement(SQL.DELETE.QUERY);
-            try {
+            try(PreparedStatement statement = getStatement(SQL.DELETE.QUERY);
+                Connection connection = statement.getConnection()){
                 if (!equalsWithNames(s[1])) return "Такого названия нету";
                 statement.setString(1, s[1]);
                 statement.execute();
@@ -123,8 +122,8 @@ public class ConnectionDB implements Dao {
     public String deleteCategory(String[] s) {
         String result = "Неправильный запрос";
         if(s[0].equals("удалить категорию")) {
-            PreparedStatement statement = getStatement(SQL.DELETECategories.QUERY);
-            try {
+            try( PreparedStatement statement = getStatement(SQL.DELETECategories.QUERY);
+                 Connection connection = statement.getConnection()) {
                 statement.setString(1, s[1]);
                 statement.execute();
                 delete("удалить", s[1]);
@@ -157,32 +156,35 @@ public class ConnectionDB implements Dao {
     }
 
     public boolean equalsWithCategories(String s) {
-        return equalsWith(s, getStatement("SELECT name from categories;"));
+        PreparedStatement statement = getStatement("SELECT name from categories;");
+            return equalsWith(s, statement);
     }
 
 
     public boolean equalsWithNames(String s){
-        return equalsWith(s, getStatement("SELECT name from products;"));
+            PreparedStatement statement = getStatement("SELECT name from products;");
+            return equalsWith(s, statement);
     }
 
     private boolean equalsWith(String s, PreparedStatement statement){
         boolean result = false;
-        try{
-            ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                if (result = resultSet.getString("name").equals(s)) break;
-            }
-            resultSet.close();
+        try(PreparedStatement statement1 = statement;
+            Connection connection = statement.getConnection()){
+                ResultSet resultSet = statement1.executeQuery();
+                while (resultSet.next()) {
+                    if (result = resultSet.getString("name").equals(s)) break;
+                }
+                resultSet.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+                e.printStackTrace();
         }
         return  result;
     }
 
     public ArrayList<String> getAllCategories(){
         ArrayList<String> strings = new ArrayList<>();
-        PreparedStatement statement = getStatement(SQL.READAllCategories.QUERY);
-        try {
+        try (PreparedStatement statement = getStatement(SQL.READAllCategories.QUERY);
+             Connection connection = statement.getConnection()){
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()){
                 strings.add(resultSet.getString("name"));
@@ -197,8 +199,9 @@ public class ConnectionDB implements Dao {
 
     public PreparedStatement getStatement(String sqlQuery){
         PreparedStatement statement = null;
-        try (Connection connection = DriverManager.getConnection(url, user, password);
-             PreparedStatement statement1 = connection.prepareStatement(sqlQuery)){
+        try {
+            Connection connection = DriverManager.getConnection(url, user, password);
+            PreparedStatement statement1 = connection.prepareStatement(sqlQuery);
             statement = statement1;
         } catch (SQLException e) {
             e.printStackTrace();
