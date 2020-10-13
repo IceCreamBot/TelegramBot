@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import ru.home.fiirst_bot.MyFirstTelegramBot;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+import ru.home.fiirst_bot.PingTask;
 
 @Getter
 @Setter
@@ -27,5 +28,10 @@ public class BotConfig {
         myFirstTelegramBot.setChatAdminId(chatAdminId);
 
         return myFirstTelegramBot;
+    }
+
+    @Bean
+    public PingTask pingTask(){
+        return new PingTask();
     }
 }
