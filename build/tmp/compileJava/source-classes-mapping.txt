@@ -1,20 +1,22 @@
-ru/home/fiirst_bot/controller/WebHookController.java
- ru.home.fiirst_bot.controller.WebHookController
 ru/home/fiirst_bot/DataBase/Dao.java
  ru.home.fiirst_bot.DataBase.Dao
 ru/home/fiirst_bot/appconfig/BotConfig.java
  ru.home.fiirst_bot.appconfig.BotConfig
-ru/home/fiirst_bot/Admin/GetAdminStrings.java
- ru.home.fiirst_bot.Admin.GetAdminStrings
+ru/home/fiirst_bot/controller/WebHookController.java
+ ru.home.fiirst_bot.controller.WebHookController
 ru/home/fiirst_bot/FirstBotApplication.java
  ru.home.fiirst_bot.FirstBotApplication
 ru/home/fiirst_bot/PingTask.java
  ru.home.fiirst_bot.PingTask
+ru/home/fiirst_bot/Sandler/Sandler.java
+ ru.home.fiirst_bot.Sandler.Sandler
+ru/home/fiirst_bot/Keyboards/Keyboards.java
+ ru.home.fiirst_bot.Keyboards.Keyboards
+ru/home/fiirst_bot/Admin/GetAdminStrings.java
+ ru.home.fiirst_bot.Admin.GetAdminStrings
 ru/home/fiirst_bot/DataBase/ConnectionDB.java
  ru.home.fiirst_bot.DataBase.ConnectionDB
  ru.home.fiirst_bot.DataBase.ConnectionDB$SQL
-ru/home/fiirst_bot/Keyboards/Keyboards.java
- ru.home.fiirst_bot.Keyboards.Keyboards
 ru/home/fiirst_bot/Handler.java
  ru.home.fiirst_bot.Handler
 ru/home/fiirst_bot/MyFirstTelegramBot.java

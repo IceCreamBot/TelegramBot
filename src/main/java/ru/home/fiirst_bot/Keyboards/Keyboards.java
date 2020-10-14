@@ -1,7 +1,9 @@
 package ru.home.fiirst_bot.Keyboards;
 
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import ru.home.fiirst_bot.DataBase.ConnectionDB;
@@ -9,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Keyboards {
-
     public static ReplyKeyboard getMenuKeyboard(){
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
 
@@ -33,24 +34,37 @@ public class Keyboards {
             keyboardRows.add(keyboardRow);
         }
 
+        KeyboardRow keyboardRow = new KeyboardRow();
+        keyboardRow.add(new KeyboardButton("Убрать заказ"));
+        keyboardRow.add(new KeyboardButton("Сбросить корзину"));
+        keyboardRow.add(new KeyboardButton("Купить"));
+        keyboardRows.add(keyboardRow);
+
         replyKeyboardMarkup.setKeyboard(keyboardRows);
         return replyKeyboardMarkup;
     }
 
-    public static ReplyKeyboard getContextKeyboard(){
-        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+    public static InlineKeyboardMarkup getInlineKeyboardMarkupForProducts(String productName){
+        List<List<InlineKeyboardButton>> inlineKeyboard = new ArrayList<>();
+        List<InlineKeyboardButton> rowButtons = new ArrayList<>();
 
-        replyKeyboardMarkup.setResizeKeyboard(true);
-        replyKeyboardMarkup.setSelective(true);
-        replyKeyboardMarkup.setOneTimeKeyboard(false);
+        rowButtons.add(new InlineKeyboardButton().setText("-1").setCallbackData(productName + ".-"));
+        rowButtons.add(new InlineKeyboardButton().setText("+1").setCallbackData(productName + ".+"));
 
-        List<KeyboardRow> keyboardRows = new ArrayList<>();
-        KeyboardRow keyboardFirstRow = new KeyboardRow();
-        keyboardFirstRow.add(new KeyboardButton("В меню"));
+        inlineKeyboard.add(rowButtons);
 
-        keyboardRows.add(keyboardFirstRow);
-        replyKeyboardMarkup.setKeyboard(keyboardRows);
-        return replyKeyboardMarkup;
+        return new InlineKeyboardMarkup().setKeyboard(inlineKeyboard);
     }
 
+    public static InlineKeyboardMarkup getInlineKeyboardMarkupForAdminWhenBuy(String chatId){
+        List<List<InlineKeyboardButton>> inlineKeyboard = new ArrayList<>();
+        List<InlineKeyboardButton> rowButtons = new ArrayList<>();
+
+        rowButtons.add(new InlineKeyboardButton().setText("Нет").setCallbackData("-"));
+        rowButtons.add(new InlineKeyboardButton().setText("Да").setCallbackData(chatId));
+
+        inlineKeyboard.add(rowButtons);
+
+        return new InlineKeyboardMarkup().setKeyboard(inlineKeyboard);
+    }
 }

@@ -1,5 +1,7 @@
 package ru.home.fiirst_bot.Admin;
 
+import ru.home.fiirst_bot.DataBase.ConnectionDB;
+
 public class GetAdminStrings {
 
     public static String getInfoString(){
@@ -12,5 +14,17 @@ public class GetAdminStrings {
                 "удалить.(название товара)\n" +
                 "удалить категорию.(название категории)\n" +
                 "/admin - справка по командам";
+    }
+    public static String getBuyString(String basketInfoString, String chatId){
+        return  "Ваш заказ:\n\n" +
+                basketInfoString + "\n\n" +
+                "Оплата на карту сбербанка по номеру телефона +7 (977)-545-77-58\n\n" +
+                "После оплаты проходите в 314/3 направо";
+    }
+
+    public static String getBuyStringForAdmin(ConnectionDB connectionDB, String AdminId, String chatId){
+    return "У вас хотят заказать id " + chatId + "\n\n" +
+            connectionDB.getBasketInfo(AdminId) + "\n\n" +
+            "Пришла оплата?";
     }
 }
