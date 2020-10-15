@@ -7,7 +7,9 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.home.fiirst_bot.Admin.GetAdminStrings;
-import ru.home.fiirst_bot.DataBase.ConnectionDB;
+import ru.home.fiirst_bot.DataBase.BasketCRUD;
+import ru.home.fiirst_bot.DataBase.ConnectionToDB;
+import ru.home.fiirst_bot.DataBase.ProductsCRUD;
 import ru.home.fiirst_bot.Keyboards.Keyboards;
 import ru.home.fiirst_bot.Sandler.Sandler;
 import java.util.ArrayList;
@@ -16,7 +18,8 @@ import java.util.List;
 @Setter
 public class Handler {
     String urlPhotoDedault = "https://e7.pngegg.com/pngimages/278/519/png-clipart-computer-icons-question-mark-symbol-question-mark-face-miscellaneous-text.png";
-    ConnectionDB connectionDB;
+    BasketCRUD basketCRUD;
+    ProductsCRUD productsCRUD;
     private MyFirstTelegramBot myFirstTelegramBot;
     private Update update;
     Message message;
@@ -28,7 +31,8 @@ public class Handler {
     public Handler(MyFirstTelegramBot myFirstTelegramBot, Update update) {
         this.myFirstTelegramBot = myFirstTelegramBot;
         this.update = update;
-        this.connectionDB = new ConnectionDB(urlPhotoDedault);
+        this.productsCRUD = new ProductsCRUD(urlPhotoDedault);
+        this.basketCRUD = new BasketCRUD(productsCRUD);
         handle();
     }
 
@@ -47,26 +51,26 @@ public class Handler {
             else {
                 switch (text[0]) {
                     case "добавить":
-                        doSendText(connectionDB.create(text));
+                        doSendText(productsCRUD.createProduct(text[1], text[2], text[3], text[4]));
                         break;
                     case "добавить категорию":
-                        doSendText(connectionDB.createCategory(text));
+                        doSendText(productsCRUD.createCategory(text[1]));
                         break;
                     case "изменить цену":
-                        doSendText(connectionDB.update(text));
+                        doSendText(productsCRUD.updatePrice(text[1], Integer.parseInt(text[2])));
                         break;
                     case "изменить колличество":
-                        doSendText(connectionDB.update(text));
+                        doSendText(productsCRUD.updateQuantity(text[1], Integer.parseInt(text[2])));
                         break;
                     case "изменить фото":
                         text = message.getText().split("\\.", 3);
-                        doSendText(connectionDB.update(text));
+                        doSendText(productsCRUD.updateUrl(text[1], text[2]));
                         break;
                     case "удалить":
-                        doSendText(connectionDB.delete(text));
+                        doSendText(productsCRUD.deleteProduct(text[1]));
                         break;
                     case "удалить категорию":
-                        doSendText(connectionDB.deleteCategory(text));
+                        doSendText(productsCRUD.deleteCategory(text[1]));
                         break;
                     case "/admin":
                         doSendText(GetAdminStrings.getInfoString());
@@ -80,10 +84,12 @@ public class Handler {
             String chatId = String.valueOf(update.getCallbackQuery().getFrom().getId());
             this.sandler = new Sandler(Long.parseLong(chatId));
             if(update.getCallbackQuery().getData().split("\\.").length == 2) {
-                connectionDB.initBasket(chatId);
+                basketCRUD.initBasket(chatId);
 
-                if(!connectionDB.isOrder(chatId)) {
-                    connectionDB.updateCountOfProductInBd(update.getCallbackQuery().getData().split("\\."), chatId);
+                if(!basketCRUD.isOrder(chatId)) {
+                    String[] answer = update.getCallbackQuery().getData().split("\\.");
+                    if(answer[1].equals("+")) basketCRUD.plusCountOfProductInBd(answer[0], chatId);
+                    else if (answer[1].equals("-")) basketCRUD.minusCountOfProductInBd(answer[0], chatId);
                     getBasketInfoOnCallBAck(chatId);
                 }
                 else{
@@ -94,24 +100,25 @@ public class Handler {
                 if(Long.parseLong(chatId) == myFirstTelegramBot.getChatAdminId()){
                     String answer = update.getCallbackQuery().getData();
                     if(!answer.equals("-")){
-                        connectionDB.updateBasketAfterBuy(answer);
+                        basketCRUD.updateBasketAfterBuy(answer);
                         sendTextOnCallBAck("Успешно", chatId);
                     }
                 }
             }
         }
 
-        connectionDB.closeConnection();
+        basketCRUD.closeConnection();
+        productsCRUD.closeConnection();
     }
 
     public void defaultHandlerForBuyer(){
-        if (connectionDB.equalsWithCategories(message.getText()))
+        if (productsCRUD.equalsWithCategories(message.getText()))
             doSendProducts(message.getText());
         else {
             switch (text[0]) {
                 case "Сбросить корзину":
-                    if(!connectionDB.isOrder(String.valueOf(chatId))) {
-                        connectionDB.resetBasket(String.valueOf(chatId));
+                    if(!basketCRUD.isOrder(String.valueOf(chatId))) {
+                        basketCRUD.resetBasket(String.valueOf(chatId));
                         doSendText("Успешно");
                     }
                     else{
@@ -119,12 +126,12 @@ public class Handler {
                     }
                     break;
                 case  "Купить":
-                    if(!connectionDB.isOrder(String.valueOf(chatId))) {
-                        String orderString = connectionDB.getBasketInfo(String.valueOf(chatId));
+                    if(!basketCRUD.isOrder(String.valueOf(chatId))) {
+                        String orderString = basketCRUD.getBasketInfo(String.valueOf(chatId));
                         if(!orderString.equals("ВСЕГО 0 руб.")) {
-                            connectionDB.setOrder(String.valueOf(chatId), true);
+                            basketCRUD.setOrder(String.valueOf(chatId), true);
                             doSendText(GetAdminStrings.getBuyString(orderString, String.valueOf(chatId)));
-                            doSendAdminTextWhenBuy(GetAdminStrings.getBuyStringForAdmin(connectionDB, String.valueOf(myFirstTelegramBot.getChatAdminId()), String.valueOf(chatId)),
+                            doSendAdminTextWhenBuy(GetAdminStrings.getBuyStringForAdmin(basketCRUD, String.valueOf(myFirstTelegramBot.getChatAdminId()), String.valueOf(chatId)),
                                     String.valueOf(chatId));
                         }
                     }
@@ -133,11 +140,11 @@ public class Handler {
                         }
                     break;
                 case "Убрать заказ":
-                    if(!connectionDB.isOrder(String.valueOf(chatId)))doSendText("Заказ не активен");
+                    if(!basketCRUD.isOrder(String.valueOf(chatId)))doSendText("Заказ не активен");
                     else {
                         doSendText(chatId + " отказался от заказа", String.valueOf(myFirstTelegramBot.getChatAdminId()));
-                        connectionDB.setOrder(String.valueOf(chatId), false);
-                        connectionDB.resetBasket(String.valueOf(chatId));
+                        basketCRUD.setOrder(String.valueOf(chatId), false);
+                        basketCRUD.resetBasket(String.valueOf(chatId));
                         doSendText("Успешно");
                     }
 
@@ -148,7 +155,7 @@ public class Handler {
     }
 
     public void doSendProducts(String s) {
-            ArrayList<Object[]> arrayList = connectionDB.read(s);
+            ArrayList<Object[]> arrayList = productsCRUD.getProductsByCategory(s);
             for (Object[] o : arrayList) {
                 doSendPhoto((String) o[3]);
                 String ourString = o[0] + "\nЦена: " + o[2] + "\nКолличество: " + o[1];
@@ -214,7 +221,7 @@ public class Handler {
     public void getBasketInfoOnCallBAck(String chatId){
         try {
             myFirstTelegramBot.execute(new AnswerCallbackQuery().
-                    setText(connectionDB.getBasketInfo(chatId)).
+                    setText(basketCRUD.getBasketInfo(chatId)).
                     setShowAlert(false).
                     setCallbackQueryId(update.getCallbackQuery().getId()));
         } catch (TelegramApiException e) {

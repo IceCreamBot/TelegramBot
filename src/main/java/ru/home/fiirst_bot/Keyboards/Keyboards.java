@@ -6,7 +6,8 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
-import ru.home.fiirst_bot.DataBase.ConnectionDB;
+import ru.home.fiirst_bot.DataBase.ProductsCRUD;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +19,7 @@ public class Keyboards {
         replyKeyboardMarkup.setSelective(true);
         replyKeyboardMarkup.setOneTimeKeyboard(false);
 
-        ArrayList<String> list = new ConnectionDB().getAllCategories();
+        ArrayList<String> list = new ProductsCRUD().getAllCategories();
 
         int rowsCount = (int) (Math.ceil((double) list.size()/3.00));
 

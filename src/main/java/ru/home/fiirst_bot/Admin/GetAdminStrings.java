@@ -1,6 +1,6 @@
 package ru.home.fiirst_bot.Admin;
 
-import ru.home.fiirst_bot.DataBase.ConnectionDB;
+import ru.home.fiirst_bot.DataBase.BasketCRUD;
 
 public class GetAdminStrings {
 
@@ -22,9 +22,9 @@ public class GetAdminStrings {
                 "После оплаты проходите в 314/3 направо";
     }
 
-    public static String getBuyStringForAdmin(ConnectionDB connectionDB, String AdminId, String chatId){
+    public static String getBuyStringForAdmin(BasketCRUD basketCRUD, String AdminId, String chatId){
     return "У вас хотят заказать id " + chatId + "\n\n" +
-            connectionDB.getBasketInfo(AdminId) + "\n\n" +
+            basketCRUD.getBasketInfo(AdminId) + "\n\n" +
             "Пришла оплата?";
     }
 }

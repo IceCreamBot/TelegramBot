@@ -37,5 +37,4 @@ public class MyFirstTelegramBot extends TelegramWebhookBot {
     public long getChatAdminId() {
         return chatAdminId;
     }
-
 }
