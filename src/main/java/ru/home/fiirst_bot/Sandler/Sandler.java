@@ -15,6 +15,10 @@ public class Sandler {
         return new SendMessage().setChatId(chatId).setText(text);
     }
 
+    public SendMessage getTextMessage(String text, String chatId) {
+        return new SendMessage().setChatId(chatId).setText(text);
+    }
+
     public SendPhoto getPhotoMessage(String url){
         return  new SendPhoto().setChatId(chatId).setPhoto(url);
     }

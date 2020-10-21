@@ -176,7 +176,7 @@ public class Handler {
     public void doSendAdminTextWhenBuy(String text, String chatId){
         try {
             myFirstTelegramBot.execute(sandler.
-                    getTextMessage(text).
+                    getTextMessage(text, String.valueOf(myFirstTelegramBot.getChatAdminId())).
                     setReplyMarkup(Keyboards.getInlineKeyboardMarkupForAdminWhenBuy(chatId)));
         } catch (TelegramApiException e) {
             e.printStackTrace();
