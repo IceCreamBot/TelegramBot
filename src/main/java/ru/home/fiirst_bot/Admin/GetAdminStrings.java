@@ -24,7 +24,7 @@ public class GetAdminStrings {
 
     public static String getBuyStringForAdmin(BasketCRUD basketCRUD, String AdminId, String chatId){
     return "У вас хотят заказать id " + chatId + "\n\n" +
-            basketCRUD.getBasketInfo(AdminId) + "\n\n" +
+            basketCRUD.getBasketInfo(chatId) + "\n\n" +
             "Пришла оплата?";
     }
 }
